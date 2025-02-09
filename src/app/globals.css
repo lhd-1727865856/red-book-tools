@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+.prose {
+  @apply text-gray-300;
+}
+
+.prose h1 {
+  @apply text-2xl font-bold mb-4 text-white;
+}
+
+.prose p {
+  @apply mb-4;
+}
+
+.prose code {
+  @apply bg-white/10 px-1.5 py-0.5 rounded text-pink-400;
+}
+
+.prose strong {
+  @apply text-white font-semibold;
+}
+
+.prose em {
+  @apply text-pink-400;
+}
+
+.prose a {
+  @apply text-[#ff2442] hover:text-[#ff2442]/80;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
