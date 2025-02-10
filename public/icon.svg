@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景渐变 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff2442"/>
+      <stop offset="100%" stop-color="#ff4d64"/>
+    </linearGradient>
+    <!-- 光晕效果 -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8"/>
+    </filter>
+  </defs>
+  
+  <!-- 主背景 -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  
+  <!-- 装饰性圆环 -->
+  <circle cx="256" cy="256" r="180" stroke="white" stroke-width="24" stroke-opacity="0.2"/>
+  
+  <!-- 中心图形：笔和闪光 -->
+  <g transform="translate(256 256) scale(0.8)">
+    <!-- 笔 -->
+    <path d="M-60,-60 L60,60 M-60,60 L60,-60" 
+          stroke="white" 
+          stroke-width="32" 
+          stroke-linecap="round"/>
+    <!-- 闪光 -->
+    <circle cx="0" cy="0" r="24" fill="white" filter="url(#glow)"/>
+  </g>
+  
+  <!-- 装饰性光点 -->
+  <circle cx="128" cy="128" r="8" fill="white" opacity="0.6"/>
+  <circle cx="384" cy="384" r="8" fill="white" opacity="0.6"/>
+  <circle cx="128" cy="384" r="8" fill="white" opacity="0.6"/>
+  <circle cx="384" cy="128" r="8" fill="white" opacity="0.6"/>
+</svg> 

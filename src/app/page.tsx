@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useState, useEffect, useRef } from "react"
 import { Button as AntButton, Input, Modal, message, ConfigProvider, theme } from 'antd'
-import { SettingOutlined, GithubOutlined, HistoryOutlined, CoffeeOutlined, KeyOutlined, CloseOutlined } from '@ant-design/icons'
+import { SettingOutlined, GithubOutlined, HistoryOutlined, CoffeeOutlined, KeyOutlined, CloseOutlined, MessageOutlined, WechatOutlined, MailOutlined } from '@ant-design/icons'
 import { cn } from "@/lib/utils"
 import { ChatMessage } from "@/components/ui/chat-message"
 
@@ -51,6 +51,75 @@ const MODEL_API_MAP: Record<ModelType, string> = {
 // 本地存储的键名
 const STORAGE_KEY = 'chat_history'
 
+// 联系方式常量
+const CONTACT_INFO = {
+  wechat: 'Lyno5o8',
+  email: 'Liu065517a@163.com'
+} as const
+
+const ContactModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+  const [messageApi, contextHolder] = message.useMessage()
+  const [copyStatus, setCopyStatus] = useState<'wechat' | 'email' | null>(null)
+  
+  useEffect(() => {
+    if (copyStatus === 'wechat') {
+      messageApi.success('微信号已复制')
+      setCopyStatus(null)
+    } else if (copyStatus === 'email') {
+      messageApi.success('邮箱已复制')
+      setCopyStatus(null)
+    }
+  }, [copyStatus, messageApi])
+  
+  return (
+    <Modal
+      title={null}
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+      closeIcon={<CloseOutlined className="text-gray-400 hover:text-white transition-colors" />}
+      className="max-w-md [&_.ant-modal-content]:!bg-slate-900 [&_.ant-modal-content]:!p-6 [&_.ant-modal-content]:!rounded-xl [&_.ant-modal-content]:!border [&_.ant-modal-content]:!border-white/20 [&_.ant-modal-content]:!shadow-lg [&_.ant-modal-content]:!shadow-black/50 [&_.ant-modal-mask]:!bg-black/50 [&_.ant-modal-mask]:!backdrop-blur-sm"
+    >
+      {contextHolder}
+      <div className="flex items-center gap-3 mb-6">
+        <MessageOutlined className="text-[#ff2442]" />
+        <span className="text-xl font-semibold text-white">联系方式</span>
+      </div>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <WechatOutlined className="text-[#07c160]" />
+          <span className="text-gray-200">微信：{CONTACT_INFO.wechat}</span>
+          <AntButton
+            size="small"
+            onClick={() => {
+              navigator.clipboard.writeText(CONTACT_INFO.wechat)
+              setCopyStatus('wechat')
+            }}
+            className="ml-auto !bg-white/5 !border-white/10 !text-gray-300 hover:!text-white hover:!bg-white/10"
+          >
+            复制
+          </AntButton>
+        </div>
+        <div className="flex items-center gap-2">
+          <MailOutlined className="text-[#ff2442]" />
+          <span className="text-gray-200">邮箱：{CONTACT_INFO.email}</span>
+          <AntButton
+            size="small"
+            onClick={() => {
+              navigator.clipboard.writeText(CONTACT_INFO.email)
+              setCopyStatus('email')
+            }}
+            className="ml-auto !bg-white/5 !border-white/10 !text-gray-300 hover:!text-white hover:!bg-white/10"
+          >
+            复制
+          </AntButton>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [input, setInput] = useState('')
@@ -68,6 +137,7 @@ export default function HomePage() {
   const [messageApi, contextHolder] = message.useMessage()
   
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null)
+  const [showContact, setShowContact] = useState(false)
   
   // 获取存储键名
   const getStorageKey = (mode: ApiMode, modelType?: ModelType) => {
@@ -392,14 +462,22 @@ export default function HomePage() {
       icon: <GithubOutlined className="w-4 h-4" />,
       label: '项目源码',
       onClick: () => {
-        window.open('https://github.com/yourusername/your-repo', '_blank')
+        window.open('https://github.com/lhd-1727865856/red-book-tools', '_blank')
       }
     },
     {
       icon: <CoffeeOutlined className="w-4 h-4" />,
       label: '赞赏支持',
       onClick: () => {
+        messageApi.success('暂时还不需要赞赏哦，谢谢支持！')
         // TODO: 实现赞赏功能
+      }
+    },
+    {
+      icon: <MessageOutlined className="w-4 h-4" />,
+      label: '联系我',
+      onClick: () => {
+        setShowContact(true)
       }
     }
   ]
@@ -675,25 +753,26 @@ export default function HomePage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setApiMode('coze')
-                      // 加载 Coze 模式的配置
-                      const storageKey = getStorageKey('coze')
-                      const savedConfig = localStorage.getItem(storageKey)
+                      messageApi.error('Coze 模式暂未开放')
+                      // setApiMode('coze')
+                      // // 加载 Coze 模式的配置
+                      // const storageKey = getStorageKey('coze')
+                      // const savedConfig = localStorage.getItem(storageKey)
                       
-                      if (savedConfig) {
-                        try {
-                          const config = JSON.parse(savedConfig) as ApiConfig
-                          setApiBaseUrl(config.baseUrl || API_MODE_CONFIG.coze.baseUrl)
-                          setApiKey(config.apiKey || '') // 直接设置，如果不存在就设为空字符串
-                          setWorkflowId(config.workflowId || '') // 直接设置，如果不存在就设为空字符串
-                        } catch (error) {
-                          console.error('Failed to load coze config:', error)
-                          loadApiModeConfig('coze')
-                        }
-                      } else {
-                        loadApiModeConfig('coze')
-                      }
-                      localStorage.setItem('api_mode', 'coze')
+                      // if (savedConfig) {
+                      //   try {
+                      //     const config = JSON.parse(savedConfig) as ApiConfig
+                      //     setApiBaseUrl(config.baseUrl || API_MODE_CONFIG.coze.baseUrl)
+                      //     setApiKey(config.apiKey || '') // 直接设置，如果不存在就设为空字符串
+                      //     setWorkflowId(config.workflowId || '') // 直接设置，如果不存在就设为空字符串
+                      //   } catch (error) {
+                      //     console.error('Failed to load coze config:', error)
+                      //     loadApiModeConfig('coze')
+                      //   }
+                      // } else {
+                      //   loadApiModeConfig('coze')
+                      // }
+                      // localStorage.setItem('api_mode', 'coze')
                     }}
                     className={cn(
                       "flex-1 px-4 py-2 rounded-lg text-sm transition-all",
@@ -805,7 +884,10 @@ export default function HomePage() {
             </div>
           </div>
         </Modal>
-    </div>
+        
+        {/* 联系方式弹窗 */}
+        <ContactModal open={showContact} onClose={() => setShowContact(false)} />
+      </div>
     </ConfigProvider>
   )
 }
